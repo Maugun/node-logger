@@ -6,6 +6,7 @@
     "version": "2.1.1",
     "main": "lib/index.js",
     "types": "lib/index.d.ts",
+    "type": "commonjs",
     "files": [
         "/lib"
     ],
@@ -51,7 +52,11 @@
     "scripts": {
         "fmt": "prettier --color --write \"{*,test/**/*}.{js,ts}\" --cache",
         "check-fmt": "prettier --list-different \"{*,test/**/*}.{js,ts}\"",
-        "build": "tsc --build tsconfig.lib.json",
+        "refactor-js-extension": "node ./scripts/refactorToNewExtension.mjs mjs",
+        "update-examples": "node ./scripts/updateExamples.mjs mjs",
+        "build:commonjs": "tsc --build tsconfig.lib.cjs.json",
+        "build:esm": "tsc --build tsconfig.lib.esm.json",
+        "build": "yarn build:commonjs & yarn build:esm && yarn refactor-js-extension && yarn update-examples",
         "prepublishOnly": "rm -rf lib && yarn build",
         "test": "ava",
         "test-cover": "nyc ava",

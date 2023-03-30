@@ -3,8 +3,6 @@
         "incremental": true,
         "noImplicitAny": true,
         "allowJs": true,
-        "target": "es2019",
-        "module": "commonjs",
         "lib": ["es2020"],
         "alwaysStrict": true,
         "skipLibCheck": true,
@@ -15,7 +13,9 @@
         "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
         "forceConsistentCasingInFileNames": true,
+        "declaration": true,
+        "sourceMap": true
     },
-    "include": ["src/**/*","test/**/*.ts"],
+    "include": ["src/**/*", "test/**/*.ts"],
     "exclude": []
 }

@@ -1,4 +1,4 @@
-const logger = require('../lib/index')
+const logger = require('../../lib/commonjs/index.js')
 
 logger.setNamespaces('namespace:*')
 logger.setLevel('debug')

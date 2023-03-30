@@ -1,7 +1,7 @@
-import colors from 'colors/safe'
-import * as outputUtils from './output_utils'
-import { LogColor, Log, LogLevel, Output } from './definitions'
-const prettyOutput = require('prettyoutput')
+import colors from 'colors'
+import * as outputUtils from './output_utils.js'
+import { LogColor, Log, LogLevel, Output } from './definitions.js'
+import prettyOutput from 'prettyoutput'
 
 /**
  * Object mapping log color and log level

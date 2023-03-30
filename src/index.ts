@@ -1,9 +1,9 @@
 import { v4 as uuidv4 } from 'uuid'
-import { Internal, Logger, LogLevel, Log, NameSpaceConfig, OutputAdapter, LogMethod } from './definitions'
+import { Internal, Logger, LogLevel, Log, NameSpaceConfig, OutputAdapter, LogMethod } from './definitions.js'
 
-import * as outputs from './output_adapters'
-import * as outputUtils from './output_utils'
-import { isObject } from './output_utils'
+import * as outputs from './output_adapters.js'
+import * as outputUtils from './output_utils.js'
+import { isObject } from './output_utils.js'
 
 /**
  * @typedef {Function} LoggerLogFunction
@@ -234,7 +234,7 @@ export const log = (
     const logInstance: Log = { level, time, namespace, contextId, meta: {}, message: message || contextId, data }
     if (internals.globalContext) logInstance.meta = Object.assign({}, internals.globalContext)
 
-    if(forceLogging || internals.loggers[namespace]?.isLevelEnabled(level)) write(logInstance)
+    if (forceLogging || internals.loggers[namespace]?.isLevelEnabled(level)) write(logInstance)
 }
 
 /**
@@ -266,7 +266,7 @@ export const syncLogger = (logger: Logger, namespace: string, canForceWrite?: bo
         internals.levels.forEach((level, idx) => {
             if (level === 'none') return
             const levelIsEnabled = internals.isEnabled?.(namespace, idx) ?? false
-            if ( levelIsEnabled || canForceWrite) {
+            if (levelIsEnabled || canForceWrite) {
                 enabledLevels[level] = levelIsEnabled
 
                 logger[level] = ((contextId: string, message: string, data?: Record<string, unknown>, forceLogging?: boolean) => {
@@ -302,7 +302,7 @@ setNamespaces(namespaces)
 setLevel(logLevel)
 
 /************* EXPORT *************/
-export * from './definitions'
+export * from './definitions.js'
 export { outputUtils, outputs }
 export default {
     createLogger,
@@ -312,5 +312,5 @@ export default {
     setGlobalContext,
     id,
     outputUtils,
-    outputs
+    outputs,
 }

@@ -5,7 +5,7 @@ NODE_MODULES     ?= "./node_modules"
 NODE_MODULES_BIN ?= "${NODE_MODULES}/.bin"
 
 FROM_VERSION     ?= $(shell yarn run -s version)
-EXAMPLE_FILES 	 := $(shell find "examples" -name "*.js")
+EXAMPLE_FILES 	 := $(shell find "examples" -name "*.*js")
 
 ############## HELP ##############
 

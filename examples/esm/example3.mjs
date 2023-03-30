@@ -1,4 +1,4 @@
-const logger = require('../lib/index')
+import logger from '../../lib/esm/index.mjs'
 
 logger.setNamespaces('namespace:*')
 logger.setLevel('debug')
