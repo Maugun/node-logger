@@ -56,7 +56,10 @@ const refactorToNewExtension = (dir, newExtension = MJS_EXTENSION) => {
     }
 }
 
+export const getPackageJsonType = () => process.env.npm_package_type === 'module' ? CJS_TYPE : MJS_TYPE
+
 const main = (type) => {
+    if (!type) type = getPackageJsonType()
     if (type != MJS_TYPE && type != CJS_TYPE) return
 
     const libDir = type === MJS_TYPE ? MJS_LIB_DIR : CJS_LIB_DIR

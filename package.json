@@ -25,7 +25,7 @@
         }
     ],
     "engines": {
-        "node": ">=14"
+        "node": ">=18"
     },
     "dependencies": {
         "colors": "1.x",
@@ -43,6 +43,7 @@
         "coveralls": "3.x",
         "eslint": "8.x",
         "husky": "8.x",
+        "json": "^11.0.0",
         "nyc": "15.x",
         "prettier": "2.x",
         "sinon": "14.x",
@@ -50,15 +51,17 @@
         "typescript": "4.x"
     },
     "scripts": {
-        "fmt": "prettier --color --write \"{*,test/**/*}.{js,ts}\" --cache",
-        "check-fmt": "prettier --list-different \"{*,test/**/*}.{js,ts}\"",
-        "refactor-js-extension": "node ./scripts/refactorToNewExtension.mjs mjs",
-        "update-examples": "node ./scripts/updateExamples.mjs mjs",
+        "fmt": "prettier --color --write \"{*,test/**/*}.{js,ts,mjs,cjs}\" --cache",
+        "check-fmt": "prettier --list-different \"{*,test/**/*}.{js,ts,mjs,cjs}\"",
+        "refactor-js-extension": "node ./scripts/refactor_to_new_extension.mjs",
+        "update-examples": "node ./scripts/update_examples.mjs",
         "build:commonjs": "tsc --build tsconfig.lib.cjs.json",
         "build:esm": "tsc --build tsconfig.lib.esm.json",
         "build": "yarn build:commonjs & yarn build:esm && yarn refactor-js-extension && yarn update-examples",
         "prepublishOnly": "rm -rf lib && yarn build",
-        "test": "ava",
+        "pre-test": "node ./scripts/pre_test.mjs",
+        "post-test": "node ./scripts/post_test.mjs",
+        "test": "yarn pre-test && ava && yarn post-test",
         "test-cover": "nyc ava",
         "coverage": "nyc ava | coveralls",
         "version": "echo ${npm_package_version}",
@@ -68,17 +71,6 @@
         "lib",
         "examples"
     ],
-    "ava": {
-        "files": [
-            "test/**/*.js"
-        ],
-        "extensions": [
-            "js"
-        ],
-        "require": [
-            "ts-node/register"
-        ]
-    },
     "nyc": {
         "reporter": [
             "lcov",

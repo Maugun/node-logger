@@ -1,6 +1,6 @@
 import { readdirSync } from 'fs'
 import { join, extname } from 'path'
-import { refactorExtension } from './refactorToNewExtension.mjs'
+import { refactorExtension, getPackageJsonType } from './refactor_to_new_extension.mjs'
 
 const MJS_TYPE = 'mjs'
 const MJS_EXTENSION = '.mjs'
@@ -41,6 +41,7 @@ const updateExamples = (type) => {
 }
 
 const main = (type) => {
+    if (!type) type = getPackageJsonType()
     if (type != MJS_TYPE && type != CJS_TYPE) return
 
     updateExamples(type)

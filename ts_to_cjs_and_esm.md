@@ -7,7 +7,12 @@
   - [Modify .js extensions](#modify-js-extensions)
     - ["type": "commonjs"](#type-commonjs)
     - ["type": "module"](#type-module)
+    - [Tools](#tools)
   - [Update Examples](#update-examples)
+    - [Tools](#tools-1)
+  - [Update Tests](#update-tests)
+    - [Ava](#ava)
+    - [Sinon](#sinon)
 
 # How to do it ?
 
@@ -110,19 +115,6 @@ And to modify:
 -   In `.mjs.map` file:
     -   `.js` to `.mjs` in `file` parameters of the JSON
 
-To do it I choose to write a script that will be run after transpiling from TypeScript : [refactorToNewExtension.mjs](./scripts/refactorToNewExtension.mjs)
-To use it you need to add the `refactor-js-extension` script and update your `build` script to your `package.json` as below:
-
-```package.json
-    "scripts": {
-        ...
-        "refactor-js-extension": "node ./scripts/refactorToNewExtension.mjs mjs",
-        ...
-        "build": "yarn build:commonjs & yarn build:esm && yarn refactor-js-extension",
-        ...
-    }
-```
-
 ### "type": "module"
 
 If you choose to add `"type": "module"` to your `package.json` you need to the same step as for ["type": "commonjs"](#type-commonjs) but replace all occurence of `.mjs` with `.cjs`.
@@ -138,18 +130,22 @@ And to modify:
 -   In `.cjs.map` file:
     -   `.js` to `.cjs` in `file` parameters of the JSON
 
-To do it I choose to write a script that will be run after transpiling from TypeScript: [refactorToNewExtension.mjs](./scripts/refactorToNewExtension.mjs)
+### Tools
+
+I made a script to automate the process that will be run after transpiling from TypeScript: [refactor_to_new_extension.mjs](./scripts/refactor_to_new_extension.mjs)
 To use it you need to add the `refactor-js-extension` script and update your `build` script to your `package.json` as below:
 
 ```package.json
     "scripts": {
         ...
-        "refactor-js-extension": "node ./scripts/refactorToNewExtension.mjs cjs",
+        "refactor-js-extension": "node ./scripts/refactor_to_new_extension.mjs",
         ...
         "build": "yarn build:commonjs & yarn build:esm && yarn refactor-js-extension",
         ...
     }
 ```
+
+**_NOTE:_** You can also add `mjs` or `cjs` as an argument to the `update_examples.mjs` script to force to update for a specific type.
 
 ## Update Examples
 
@@ -160,30 +156,64 @@ To do this you need to:
 -   Create 2 folders, one for commonjs & one for esm
 -   Modify your files `extension` and `import` / `require` to match the `type` you choose as a default in your `package.json`
 
-To simplify the modifications when you switch from `"type": "commonjs"` to `"type": "module"` I made a script that update `extension` and `import` / `require`: [updateExamples.mjs](./scripts/updateExamples.mjs)
+### Tools
+
+To simplify the modifications when you switch from `"type": "commonjs"` to `"type": "module"` I made a script that update `extension` and `import` / `require`: [update_examples.mjs](./scripts/update_examples.mjs)
 
 To use it simply add to you `package.json`:
 
--   For `"type": "commonjs"`:
-
 ```package.json
     "scripts": {
         ...
-         "update-examples": "node ./scripts/updateExamples.mjs mjs"
+        "update-examples": "node ./scripts/update_examples.mjs"
         ...
         "build": "yarn build:commonjs & yarn build:esm && yarn refactor-js-extension && yarn update-examples",
         ...
     }
 ```
 
--    For `"type": "module"`:
+**_NOTE:_** You can also add `mjs` or `cjs` as an argument to the `update_examples.mjs` script to force to update for a specific type.
+
+## Update Tests
+
+### Ava
+
+To make the ava tests work with both `"type": "commonjs"` & `"type": "module"` you need to:
+
+-   Rename your `*.test.js` files to `*.test.mjs`
+-   Replace all `require` statements in your tests with `import` statements
+-   Create an `ava.config.mjs` file with:
+
+```javascript
+export default {
+    require: ['ts-node/register'],
+    extensions: ['js', 'ts', 'mjs'],
+    files: ['test/**/*.test.{mjs,js,ts}'],
+    nodeArguments: ['--experimental-specifier-resolution=node', '--loader=ts-node/esm', '--no-warnings'],
+    environmentVariables: {
+        TS_NODE_FILES: 'true',
+        TS_NODE_TRANSPILE_ONLY: 'true',
+        TS_NODE_COMPILER_OPTIONS: '{"module":"ESNext"}',
+    },
+}
+```
+
+Ava tests will only works when `type` is `module`, to fix this problem I add 2 scripts [pre-test.mjs](./scripts/pre-test.mjs) & [pre-test.mjs](./scripts/pre-test.mjs) that will change the `type` in `package.json` before running the tests and that will restored the `type` after the tests.
 
 ```package.json
     "scripts": {
         ...
-         "update-examples": "node ./scripts/updateExamples.mjs cjs"
-        ...
-        "build": "yarn build:commonjs & yarn build:esm && yarn refactor-js-extension && yarn update-examples",
+        "pre-test": "node ./scripts/pre_test.mjs",
+        "post-test": "node ./scripts/post_test.mjs",
+        "test": "yarn pre-test && ava && yarn post-test",
         ...
     }
 ```
+
+@TODO execute `yarn post-test` even when ava tests fail
+
+### Sinon
+
+@TODO complete this section
+
+
