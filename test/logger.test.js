@@ -3,7 +3,7 @@
 
 import test from 'ava'
 import sinon, { stub, useFakeTimers } from 'sinon'
-import { createLogger, parseNamespace, setGlobalContext, setLevel, setNamespaces, setOutput, loggerMock } from '../src/index.ts'
+import { createLogger, parseNamespace, setGlobalContext, setLevel, setNamespaces, setOutput, loggerMock } from '../src/index.js'
 
 test.beforeEach(() => {
     setOutput([])

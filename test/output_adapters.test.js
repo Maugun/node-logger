@@ -4,8 +4,8 @@
 import test from 'ava'
 import sinon from 'sinon'
 
-import * as outputAdapters from '../src/output_adapters.ts'
-import { createLogger, setLevel, setNamespaces, setOutput } from '../src/index.ts'
+import * as outputAdapters from '../src/output_adapters.js'
+import { createLogger, setLevel, setNamespaces, setOutput } from '../src/index.js'
 
 test.beforeEach(() => {
     setOutput([])

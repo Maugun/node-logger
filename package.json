@@ -4,12 +4,24 @@
     "homepage": "https://github.com/ekino/node-logger",
     "license": "MIT",
     "version": "2.1.1",
-    "main": "lib/index.js",
-    "types": "lib/index.d.ts",
-    "type": "commonjs",
+    "type": "module",
     "files": [
         "/lib"
     ],
+    "main": "lib/esm/index.js",
+    "types": "lib/esm/index.d.ts",
+    "exports": {
+        ".": {
+            "require": {
+                "default": "./lib/cjs/index.js",
+                "types": "./lib/cjs/index.d.ts"
+            },
+            "import": {
+                "default": "./lib/esm/index.js",
+                "types": "./lib/esm/index.d.ts"
+            }
+        }
+    },
     "tags": [
         "logger",
         "lightweight",
@@ -51,17 +63,14 @@
         "typescript": "4.x"
     },
     "scripts": {
-        "fmt": "prettier --color --write \"{*,test/**/*}.{js,ts,mjs,cjs}\" --cache",
-        "check-fmt": "prettier --list-different \"{*,test/**/*}.{js,ts,mjs,cjs}\"",
-        "refactor-js-extension": "node ./scripts/refactor_to_new_extension.mjs",
-        "update-examples": "node ./scripts/update_examples.mjs",
+        "fmt": "prettier --color --write \"{*,test/**/*}.{js,ts}\" --cache",
+        "check-fmt": "prettier --list-different \"{*,test/**/*}.{js,ts}\"",
         "build:commonjs": "tsc --build tsconfig.lib.cjs.json",
         "build:esm": "tsc --build tsconfig.lib.esm.json",
-        "build": "yarn build:commonjs & yarn build:esm && yarn refactor-js-extension && yarn update-examples",
+        "create-packages": "node ./scripts/create_packages.js",
+        "build": "yarn build:commonjs & yarn build:esm && yarn create-packages",
         "prepublishOnly": "rm -rf lib && yarn build",
-        "pre-test": "node ./scripts/pre_test.mjs",
-        "post-test": "node ./scripts/post_test.mjs",
-        "test": "yarn pre-test && ava && yarn post-test",
+        "test": "ava",
         "test-cover": "nyc ava",
         "coverage": "nyc ava | coveralls",
         "version": "echo ${npm_package_version}",

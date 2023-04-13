@@ -1,5 +1,5 @@
 import test from 'ava'
-import { errorToJson, stringify } from '../src/output_utils.ts'
+import { errorToJson, stringify } from '../src/output_utils.js'
 
 test('errorToJson should expose error stack through a json stringify', (t) => {
     const e = { message: 'error', stack: 'strace' }

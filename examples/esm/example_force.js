@@ -1,4 +1,4 @@
-import logger from '../../lib/esm/index.mjs'
+import logger from '../../lib/esm/index.js'
 
 logger.setOutput(logger.outputs.pretty)
 logger.setNamespaces('*')

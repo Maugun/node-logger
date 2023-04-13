@@ -1,7 +1,7 @@
 export default {
     require: ['ts-node/register'],
-    extensions: ['js', 'ts', 'mjs'],
-    files: ['test/**/*.test.{mjs,js,ts}'],
+    extensions: ['js', 'ts'],
+    files: ['test/**/*.test.{js,ts}'],
     nodeArguments: ['--experimental-specifier-resolution=node', '--loader=ts-node/esm', '--no-warnings'],
     environmentVariables: {
         TS_NODE_FILES: 'true',

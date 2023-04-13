@@ -1,4 +1,4 @@
-const logger = require('../../lib/commonjs/index.js')
+const logger = require('../../lib/cjs/index.js')
 
 logger.setOutput(logger.outputs.pretty)
 logger.setNamespaces('namespace:*')

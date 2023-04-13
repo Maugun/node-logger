@@ -1,9 +1,9 @@
-const logger = require('../../lib/commonjs/index.js')
+import logger from '../../lib/esm/index.js'
 
 logger.setNamespaces('root:*')
 logger.setLevel('debug')
 
 const log = logger.createLogger('root:testing')
-log.debug('sample message', {
+log.debug('ctxId', 'log with predefined context ID', {
     foo: 'bar',
 })

@@ -1,4 +1,4 @@
-import logger from '../../lib/esm/index.mjs'
+import logger from '../../lib/esm/index.js'
 
 logger.setNamespaces('namespace:*')
 logger.setLevel('debug')

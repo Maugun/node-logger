@@ -4,12 +4,9 @@
 - [How to do it ?](#how-to-do-it-)
   - [Modify import in .ts files](#modify-import-in-ts-files)
   - [Modify tsconfig.json \& package.json](#modify-tsconfigjson--packagejson)
-  - [Modify .js extensions](#modify-js-extensions)
-    - ["type": "commonjs"](#type-commonjs)
-    - ["type": "module"](#type-module)
-    - [Tools](#tools)
+    - [Create a script to add package.json to your lib directories](#create-a-script-to-add-packagejson-to-your-lib-directories)
+    - [Final steps](#final-steps)
   - [Update Examples](#update-examples)
-    - [Tools](#tools-1)
   - [Update Tests](#update-tests)
     - [Ava](#ava)
     - [Sinon](#sinon)
@@ -59,7 +56,7 @@ then:
     "extends": "./tsconfig.json",
     "compilerOptions": {
         "module": "CommonJS",
-        "outDir": "lib/commonjs",
+        "outDir": "lib/cjs",
         "target": "es2019",
         "moduleResolution": "node"
     },
@@ -89,106 +86,84 @@ Add the following scripts to `package.json` to build to commonJS & ES modules:
         ...
         "build:commonjs": "tsc --build tsconfig.lib.cjs.json",
         "build:esm": "tsc --build tsconfig.lib.esm.json",
-        "build": "yarn build:commonjs & yarn build:esm",
     }
 ```
 
-Now you have to choose if you want `.js` to be interpreted as commonJS or ES modules.
+To be able to export your types don't forget to add theses lines to `package.json`:
 
--   For commonJS add `"type": "commonjs"` to your `package.json` or remove the `"type"` configuration as commonJS is used by default anyway
--   For ES modules add `"type": "module"` to your `package.json`
+```package.json
+   "main": "lib/esm/index.js",
+    "types": "lib/esm/index.d.ts",
+    "exports": {
+        ".": {
+            "require": {
+                "default": "./lib/cjs/index.js",
+                "types": "./lib/cjs/index.d.ts"
+            },
+            "import": {
+                "default": "./lib/esm/index.js",
+                "types": "./lib/esm/index.d.ts"
+            }
+        }
+    },
+```
 
-## Modify .js extensions
+### Create a script to add package.json to your lib directories
 
-### "type": "commonjs"
+To be able to run your `.js` files from your lib directories, you need to add a `package.json` file with the field `type` set to `module` for esm js files (`lib/esm` dir) & `commonjs` for cjs js files (`lib/cjs` dir).
 
-If you choose to add `"type": "commonjs"` to your `package.json` you need to rename:
+You can do it manually after every build but you can also automate the process by adding this script: [create_packages.js](./scripts/create_packages.js)
 
--   `.js` file to `.mjs`
--   `.js.map` file to `mjs.map`
-
-And to modify:
-
--   In `.mjs` file:
-    -   `.js` to `.mjs` in `import` and `export` statements
-    -   `//# sourceMappingURL=your_file.js.map` into `//# sourceMappingURL=your_file.mjs.map`
--   In `.mjs.map` file:
-    -   `.js` to `.mjs` in `file` parameters of the JSON
-
-### "type": "module"
-
-If you choose to add `"type": "module"` to your `package.json` you need to the same step as for ["type": "commonjs"](#type-commonjs) but replace all occurence of `.mjs` with `.cjs`.
-
--   `.js` file to `.cjs`
--   `.js.map` file to `cjs.map`
-
-And to modify:
-
--   In `.cjs` file:
-    -   `.js` to `.cjs` in `require` statements (don't forget `require` statements inside `__exportStar` & `__importStar` statements)
-    -   `//# sourceMappingURL=your_file.js.map` into `//# sourceMappingURL=your_file.cjs.map`
--   In `.cjs.map` file:
-    -   `.js` to `.cjs` in `file` parameters of the JSON
-
-### Tools
-
-I made a script to automate the process that will be run after transpiling from TypeScript: [refactor_to_new_extension.mjs](./scripts/refactor_to_new_extension.mjs)
-To use it you need to add the `refactor-js-extension` script and update your `build` script to your `package.json` as below:
+And by adding the following scripts to `package.json`:
 
 ```package.json
     "scripts": {
         ...
-        "refactor-js-extension": "node ./scripts/refactor_to_new_extension.mjs",
-        ...
-        "build": "yarn build:commonjs & yarn build:esm && yarn refactor-js-extension",
-        ...
+        "build:commonjs": "tsc --build tsconfig.lib.cjs.json",
+        "build:esm": "tsc --build tsconfig.lib.esm.json",
+        "create-packages": "node ./scripts/create_packages.js",
+        "build": "yarn build:commonjs & yarn build:esm && yarn create-packages",
     }
 ```
 
-**_NOTE:_** You can also add `mjs` or `cjs` as an argument to the `update_examples.mjs` script to force to update for a specific type.
+### Final steps
+
+- Be sure to have `"type": "module"` in your `package.json`
+- Add a `package.json` file to the scripts folder: `{"type": "commonjs"}`
+
+You can now run `yarn build` to build your project to ES modules & commonJs !
 
 ## Update Examples
 
-You also have to update the examples files to be able to have working examples for both commonJS & ES modules.
+You need to update the examples files to be able to have working examples for both commonJS & ES modules.
 
 To do this you need to:
 
--   Create 2 folders, one for commonjs & one for esm
--   Modify your files `extension` and `import` / `require` to match the `type` you choose as a default in your `package.json`
+-   Create 2 directories, one for commonjs & one for ES module (`examples/cjs` & `examples/esm`)
+-   In the `cjs` directory:
+    -   Use `require` statements with path from `lib/cjs` in your js files (don't forget the `.js` at the end of your paths)
+    -   Add a `package.json` file to the scripts folder: `{"type": "commonjs"}`
+-   In the `esm` directory:
+    -   Use `import` statements with path from `lib/esm` in your js files (don't forget the `.js` at the end of your paths)
+    -   Add a `package.json` file to the scripts folder: `{"type": "module"}`
 
-### Tools
-
-To simplify the modifications when you switch from `"type": "commonjs"` to `"type": "module"` I made a script that update `extension` and `import` / `require`: [update_examples.mjs](./scripts/update_examples.mjs)
-
-To use it simply add to you `package.json`:
-
-```package.json
-    "scripts": {
-        ...
-        "update-examples": "node ./scripts/update_examples.mjs"
-        ...
-        "build": "yarn build:commonjs & yarn build:esm && yarn refactor-js-extension && yarn update-examples",
-        ...
-    }
-```
-
-**_NOTE:_** You can also add `mjs` or `cjs` as an argument to the `update_examples.mjs` script to force to update for a specific type.
+You can now run `make examples` to run your examples !
 
 ## Update Tests
 
 ### Ava
 
-To make the ava tests work with both `"type": "commonjs"` & `"type": "module"` you need to:
+To make the ava tests work in ES module you need to:
 
--   Rename your `*.test.js` files to `*.test.mjs`
--   Replace all `require` statements in your tests with `import` statements
--   Create an `ava.config.mjs` file with:
+-   Replace all `require` statements in your tests with `import` statements (don't forget the `.js` at the end of your paths)
+-   Add a `package.json` file to the test folder: `{"type": "module"}`
+-   Create an `ava.config.js` file with:
 
 ```javascript
 export default {
     require: ['ts-node/register'],
-    extensions: ['js', 'ts', 'mjs'],
-    files: ['test/**/*.test.{mjs,js,ts}'],
+    extensions: ['js', 'ts'],
+    files: ['test/**/*.test.{js,ts}'],
     nodeArguments: ['--experimental-specifier-resolution=node', '--loader=ts-node/esm', '--no-warnings'],
     environmentVariables: {
         TS_NODE_FILES: 'true',
@@ -198,22 +173,6 @@ export default {
 }
 ```
 
-Ava tests will only works when `type` is `module`, to fix this problem I add 2 scripts [pre-test.mjs](./scripts/pre-test.mjs) & [pre-test.mjs](./scripts/pre-test.mjs) that will change the `type` in `package.json` before running the tests and that will restored the `type` after the tests.
-
-```package.json
-    "scripts": {
-        ...
-        "pre-test": "node ./scripts/pre_test.mjs",
-        "post-test": "node ./scripts/post_test.mjs",
-        "test": "yarn pre-test && ava && yarn post-test",
-        ...
-    }
-```
-
-@TODO execute `yarn post-test` even when ava tests fail
-
 ### Sinon
 
 @TODO complete this section
-
-

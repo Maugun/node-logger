@@ -1,9 +1,9 @@
-import logger from '../../lib/esm/index.mjs'
+import logger from '../../lib/esm/index.js'
 
 logger.setNamespaces('root:*')
 logger.setLevel('debug')
 
 const log = logger.createLogger('root:testing')
-log.debug('ctxId', 'log with predefined context ID', {
+log.debug('sample message', {
     foo: 'bar',
 })
